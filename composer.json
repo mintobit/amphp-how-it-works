@@ -1,0 +1,22 @@
+{
+    "name": "mintobit/amphp-how-it-works",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Anton Nizhegorodov",
+            "email": "mintobit@gmail.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "src/functions.php"
+        ],
+        "psr-4": {
+            "AmphpHowItWorks\\": "src/"
+        }
+    },
+    "require": {
+        "amphp/amp": "^2.3.2"
+    }
+}
