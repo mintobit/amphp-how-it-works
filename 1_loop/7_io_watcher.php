@@ -11,11 +11,9 @@ const IO_GRANULARITY = 32768;
 
 Loop::onReadable(STDIN, function (string $watcherId, $socket) {
     $newData = trim(@fread($socket, IO_GRANULARITY));
-    if ($newData != "") {
-        println('Hello, %s!', $newData);
-        // Disables this watcher and removes it from the loop
-        Loop::cancel($watcherId);
-    }
+    println('Hello, %s!', $newData);
+    // Disables this watcher and removes it from the loop
+    Loop::cancel($watcherId);
 });
 
 println('Before Loop::run()');

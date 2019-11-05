@@ -10,23 +10,37 @@ use Amp\Loop;
 use Amp\Promise;
 use function AmphpHowItWorks\println;
 
-$getDelayedPromise = function (): Promise {
-    return new Delayed(1000, 'Brown Fox');
-};
+function schedule_heartbeat(): void
+{
+    $repeatWatcherId = Loop::repeat(500, function ($watcherId) {
+        println('500ms');
+    });
+    // Unreference so that loop is stopped when no other active watchers left
+    Loop::unreference($repeatWatcherId);
+}
 
-$lazyPromise = new LazyPromise($getDelayedPromise);
+function async_multiply(int $x, int $y): Promise
+{
+    return new Delayed(2000, $x * $y);
+}
 
-$repeatIntervalMs = 500;
-$repeatWatcherId = Loop::repeat($repeatIntervalMs, function ($watcherId) {
-    println('500ms');
-});
-Loop::unreference($repeatWatcherId);
+function lazy_async_multiply(int $x, int $y): Promise
+{
+    $promisor = function () use ($x, $y): Promise {
+        return async_multiply($x, $y);
+    };
 
-$delayMs = 2000;
-Loop::delay($delayMs, function ($watcherId) use ($lazyPromise) {
+    return new LazyPromise($promisor);
+}
+
+schedule_heartbeat();
+$lazyPromise = lazy_async_multiply(2, 10);
+
+Loop::delay(2000, function ($watcherId) use ($lazyPromise) {
     $lazyPromise->onResolve(function (?\Throwable $failure, $value) {
         println('Lazy promise resolved with value `%s`!', $value);
     });
+
     println('Callback executed for DELAY watcher with id `%s`', $watcherId);
 });
 
@@ -47,8 +61,11 @@ println('After Loop::run()');
  * Callback executed for DELAY watcher with id `b`
  * 500ms
  * 500ms
- * Lazy promise resolved with value `Brown Fox`!
+ * 500ms
+ * 500ms
+ * Lazy promise resolved with value `20`!
  * 500ms
  * After Loop::run()
+
  *
  */

@@ -6,17 +6,22 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use function AmphpHowItWorks\println;
 
+/** @var Generator $generator */
 $generator = (function (): \Generator {
-    $value = yield 1;
-    $value = yield $value * 2;
-    $value = yield $value * 2;
+    $received1 = yield 1;
+    println('Generator received %s', $received1);
+    $received2 = yield $received1 * 2;
+    println('Generator received %s', $received2);
+    $received3 = yield $received2 * 2;
+    println('Generator received %s', $received3);
 
-    return $value;
+    return $received3;
 })();
 
 while ($generator->valid()) {
-    $value = $generator->current();
-    $generator->send($value);
+    $yielded = $generator->current();
+    println('Generator yielded %s', $yielded);
+    $generator->send($yielded);
 }
 
 $result = $generator->getReturn();
@@ -29,6 +34,12 @@ println('Coroutine returned: %s', $result);
  *
  * Output:
  *
+ * Generator yielded 1
+ * Generator received 1
+ * Generator yielded 2
+ * Generator received 2
+ * Generator yielded 4
+ * Generator received 4
  * Coroutine returned: 4
  *
  */
